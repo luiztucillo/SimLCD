@@ -1,10 +1,31 @@
 #include <Icon.h>
 #include <MCUFRIEND_kbv.h>
 
-void IconErs::drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color)
+Icon::Icon(IconType icon)
 {
-    int offsetX = x;
-    int offsetY = y;
+    this->icon = icon;
+}
+
+void Icon::drawIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY)
+{
+    if (icon == ERS) {
+        Serial.println("ERS ICON");
+        drawErsIcon(tft, offsetX, offsetY);
+        return;
+    }
+
+    if (icon == ERS) {
+        Serial.println("FUEL ICON");
+        drawFuelIcon(tft, offsetX, offsetY);
+        return;
+    }
+
+    Serial.println("NO ICON");
+}
+
+void Icon::drawErsIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY)
+{
+    uint16_t color = 0xFFFF;
 
     int line = 0;
     int column = 0;
@@ -83,7 +104,7 @@ void IconErs::drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color
     tft.drawPixel(offsetX + column + 1, offsetY + line, color);
 }
 
-void IconFuel::drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color)
+void Icon::drawFuelIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY)
 {
-
+    Serial.println("Draing FUEL ICON");
 }

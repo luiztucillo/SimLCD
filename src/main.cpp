@@ -46,9 +46,9 @@ void setup(void) {
 
   revLeds.begin(tft, 0, maxRev, 0x07E0, 0xF800);
 
-  fuelBar.begin(tft, 0, maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40);
-  ersBar.begin(tft, 0, maxErs, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F);
-  ersBar.setIcon(IconErs(), 0, 0, 0xFFFF);
+  fuelBar.begin(tft, 0, maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
+  
+  ersBar.begin(tft, 0, maxErs, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F, Icon(ERS));
 }
 
 void shift() {

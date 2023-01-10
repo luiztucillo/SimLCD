@@ -4,21 +4,21 @@
 #include <stdint.h>
 #include <MCUFRIEND_kbv.h>
 
+enum IconType
+{
+    ERS,
+    FUEL
+};
+
 class Icon {
-public:
-    void drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color) {
-        return;
-    }
-};
+private:
+    IconType icon;
+    void drawErsIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
+    void drawFuelIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
 
-class IconErs : public Icon {
 public:
-    void drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color);
-};
-
-class IconFuel : public Icon {
-public:
-    void drawIcon(MCUFRIEND_kbv tft, uint16_t x, uint16_t y, uint16_t color);
+    Icon(IconType icon);
+    void drawIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
 };
 
 #endif
