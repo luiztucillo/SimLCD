@@ -19,23 +19,21 @@
 #define SCREEN_H 240
 
 struct DataLoader {
-  uint16_t speed;
-  uint16_t rpm;
-  uint16_t gear;
-  uint16_t maxRpm;
-  uint16_t status;
-  uint16_t fuel;
-  uint16_t maxFuel;
-  uint32_t curretLap;
-  uint32_t lastLap;
-  uint32_t bestLap;
+  uint16_t speed = 0;
+  uint16_t rpm = 0;
+  uint16_t gear = 0;
+  uint16_t maxRpm = 0;
+  uint16_t status = 0;
+  uint16_t fuel = 0;
+  uint16_t maxFuel = 0;
 };
 
-DataLoader prevDataLoader = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-DataLoader curDataLoader = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int len = sizeof(DataLoader);
+
+DataLoader prevDataLoader;
+DataLoader curDataLoader;
 
 bool initializedRace = false;
-int len = sizeof(DataLoader);
 MCUFRIEND_kbv tft;
 LedAutoColored revLeds = LedAutoColored();
 Bar fuelBar = Bar();
@@ -103,10 +101,36 @@ void setup(void) {
   // ersBar.begin(tft, 0, 10000, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F, Icon(ERS));
 }
 
+char* milisecondsToRacetime(uint32_t milisecond) {
+	uint16_t seconds = milisecond / 1000 % 60;
+	uint16_t minutes = milisecond / 60000;
+	uint16_t rest = milisecond % 1000;
+
+	char secondsStr[2];
+  sprintf(secondsStr, "%02d", seconds);
+
+	char minutesStr[2];
+  sprintf(minutesStr, "%02d", minutes);
+
+	char restStr[3];
+  sprintf(restStr, "%03d", rest);
+
+  char* str = new char[9]();
+  str[0] = minutesStr[0];
+  str[1] = minutesStr[1];
+  str[2] = ':';
+  str[3] = secondsStr[0];
+  str[4] = secondsStr[1];
+  str[5] = ':';
+  str[6] = restStr[0];
+  str[7] = restStr[1];
+  str[8] = restStr[3];
+
+  return str;
+}
+
 void loop(void) {
-  // SAY HELLO
-  Serial.write('a');
-  delay(30);
+  Serial.write("a");
 
   if (Serial.available() > 0) {
     char buf[len];
@@ -115,7 +139,7 @@ void loop(void) {
 
     if (!initializedRace) {
       revLeds.begin(tft, 0, curDataLoader.maxRpm, 0x07E0, 0xF800);
-      fuelBar.begin(tft, 0, curDataLoader.maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
+      fuelBar.begin(tft, 0, curDataLoader.maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, FUEL);
       initializedRace = true;
     }
 

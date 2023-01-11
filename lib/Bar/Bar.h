@@ -16,11 +16,11 @@ class Bar {
         uint16_t positionY;
         uint16_t backgroundColor;
         uint16_t foregroundColor;
-        Icon icon = NULL;
+        IconType iconType = EMPTY;
     
     public:
         void begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_t width, uint16_t height, 
-                uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, Icon icon);
+                uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, IconType iconType);
         void update(uint16_t value);
 };
 

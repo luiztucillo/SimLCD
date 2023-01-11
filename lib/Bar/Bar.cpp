@@ -3,7 +3,7 @@
 #include <Icon.h>
 
 void Bar::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_t width, 
-    uint16_t height, uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, Icon icon) {
+    uint16_t height, uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, IconType iconType) {
     this->tft = tft;
     this->minValue = minValue;
     this->maxValue = maxValue;
@@ -13,7 +13,7 @@ void Bar::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_
     this->positionY = positionY;
     this->backgroundColor = backgroundColor;
     this->foregroundColor = foregroundColor;
-    this->icon = icon;
+    this->iconType = iconType;
 }
 
 void Bar::update(uint16_t value) {
@@ -24,5 +24,6 @@ void Bar::update(uint16_t value) {
     tft.fillRect(positionX + 1, positionY + 1, width - 2, height - 2, backgroundColor);
     tft.fillRect(positionX + 1, positionY + height - current - 1, width - 2, current, foregroundColor);
 
-    icon.drawIcon(tft, positionX, positionY);
+    Icon icon = Icon();
+    icon.drawIcon(iconType, tft, positionX, positionY + height);
 }

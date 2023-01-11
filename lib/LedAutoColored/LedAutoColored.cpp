@@ -20,16 +20,15 @@ void LedAutoColored::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxVal
 
 void LedAutoColored::drawLed(int x, int y, uint16_t curValue)
 {
-
     float perc = (float) (100 * (curValue / 1000) / (maxValue - minValue));
 
     uint16_t offColor = 0x7BEF; 
     uint16_t color;
-    if (perc < 50) {
+    if (perc < 70) {
         color = offColor;
-    } else if(perc < 70) {
+    } else if(perc <80) {
         color = 0x1FE0;
-    } else if(perc < 80) {
+    } else if(perc < 95) {
         color = 0xFEE0;
     } else {
         color = 0xF800;

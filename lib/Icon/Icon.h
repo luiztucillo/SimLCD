@@ -7,18 +7,15 @@
 enum IconType
 {
     ERS,
-    FUEL
+    FUEL,
+    EMPTY
 };
 
 class Icon {
-private:
-    IconType icon;
+public:
     void drawErsIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
     void drawFuelIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
-
-public:
-    Icon(IconType icon);
-    void drawIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
+    void drawIcon(IconType type, MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY);
 };
 
 #endif
