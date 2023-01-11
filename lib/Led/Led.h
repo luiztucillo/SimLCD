@@ -12,6 +12,7 @@ public:
     void begin(MCUFRIEND_kbv tft);
     int getWidth();
     void drawLed(int x, int y, uint16_t shadow, uint16_t bright, uint16_t specular, uint16_t miniShadow);
+    void drawSimpleLed(int x, int y, uint16_t color);
     void drawRedLed(int x, int y);
     void drawBlueLed(int x, int y);
     void drawYellowLed(int x, int y);

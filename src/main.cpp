@@ -18,132 +18,116 @@
 #define SCREEN_W 320
 #define SCREEN_H 240
 
+struct DataLoader {
+  uint16_t speed;
+  uint16_t rpm;
+  uint16_t gear;
+  uint16_t maxRpm;
+  uint16_t status;
+  uint16_t fuel;
+  uint16_t maxFuel;
+  uint32_t curretLap;
+  uint32_t lastLap;
+  uint32_t bestLap;
+};
+
+DataLoader prevDataLoader = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+DataLoader curDataLoader = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+bool initializedRace = false;
+int len = sizeof(DataLoader);
 MCUFRIEND_kbv tft;
 LedAutoColored revLeds = LedAutoColored();
 Bar fuelBar = Bar();
 Bar ersBar = Bar();
 
-int curShift = -2;
 uint16_t curErs = 0;
 uint16_t maxErs = 300;
 
 uint16_t curFuel = 0;
 uint16_t maxFuel = 300;
 
-uint16_t maxRev = 10000;
-
-uint16_t curRev = 0;
-
-uint16_t curSpeed = 0;
-
-void setup(void) {
-  Serial.begin(9600);
-
-  uint16_t ID = tft.readID();
-  tft.begin(ID);
-  tft.setRotation(1);
-  tft.fillScreen(BACKGROUND);
-
-  revLeds.begin(tft, 0, maxRev, 0x07E0, 0xF800);
-
-  fuelBar.begin(tft, 0, maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
-  
-  ersBar.begin(tft, 0, maxErs, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F, Icon(ERS));
-}
-
-void shift() {
-  int size = 20;
-  int x = 150;
-  int y = 50;
-
-  int index = curShift < -1 || curShift > 10 ? 0 : curShift + 1;
+void gear() {
+  int index = curDataLoader.gear;
   char shifts[] = {'R', 'N', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  
+  tft.setTextSize(20);
 
-  tft.fillRect(x, y, 100, 140, BACKGROUND);
-  tft.setCursor(x, y);
+  tft.fillRect(150, 50, 100, 140, BACKGROUND);
+
+  tft.setCursor(150, 50);
   tft.setTextColor(WHITE);
-  tft.setTextSize(size);
   tft.print(shifts[index]);
-  delay(100);
 }
 
 void speed() {
+  tft.setTextSize(6);
+
   tft.fillRect(10, 90, 102, 43, RED);
+
   tft.setCursor(10, 90);
   tft.setTextColor(WHITE);
-  tft.setTextSize(6);
-  tft.print(curSpeed);
+  tft.print(curDataLoader.speed);
 }
 
 void rev() {
-  int offsetX = 22;
-  int offsetY = 22;
+  tft.setTextSize(3);
 
-  tft.fillRect(10, 50, 76, 22, BACKGROUND);
+  tft.fillRect(10, 50, 100, 22, BACKGROUND);
   tft.setCursor(10, 50);
   tft.setTextColor(WHITE);
-  tft.setTextSize(3);
-  tft.print(curRev);
+  tft.print(curDataLoader.rpm);
 
+  int offsetX = 22;
+  int offsetY = 22; 
   for (int i = 0; i < 8; i ++) {
-    revLeds.drawLed(offsetX, offsetY, curRev);
+    revLeds.drawLed(offsetX, offsetY, curDataLoader.rpm);
     offsetX += revLeds.getWidth() + 13;
   }
-}
-
-void fuel() {
-  fuelBar.update(curFuel);
-  // int height = SCREEN_H - spaceY;
-  // int positionX = SCREEN_W - width * 2 - 14;
-
-  // int offsetX = positionX + 5;
-  // int offsetY = SCREEN_H - 20;
-  // uint16_t color = RED;
-
-  // for (int l1 = 0; l1 < 2; l1 ++) {
-  //   for (int c1 = 0; c1 < 9; c1 ++) {
-  //     tft.drawPixel(offsetX + c1, offsetY + l1, color);
-  //   }
-  // }
-
-  // for (int l2 = 2; l2 < 5; l2 ++) {
-  //   tft.drawPixel(offsetX, offsetY + l2, color);
-  //   tft.drawPixel(offsetX + 1, offsetY + l2, color);
-  //   tft.drawPixel(offsetX + 7, offsetY + l2, color);
-  //   tft.drawPixel(offsetX + 8, offsetY + l2, color);
-  // }
-
-  // for (int l1 = 5; l1 < 13; l1 ++) {
-  //   for (int c1 = 0; c1 < 9; c1 ++) {
-  //     tft.drawPixel(offsetX + c1, offsetY + l1, color);
-  //   }
-  // }
 }
 
 void ers() {
   ersBar.update(curErs);
 }
 
+void setup(void) {
+  Serial.begin(115200);
+
+  uint16_t ID = tft.readID();
+  tft.begin(ID);
+  tft.setRotation(1);
+  tft.fillScreen(BACKGROUND);
+
+  // revLeds.begin(tft, 0, 10000, 0x07E0, 0xF800);
+  // fuelBar.begin(tft, 0, 10000, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
+  // ersBar.begin(tft, 0, 10000, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F, Icon(ERS));
+}
+
 void loop(void) {
-  curShift ++;
-  if (curShift > 7) curShift = 0;
+  // SAY HELLO
+  Serial.write('a');
+  delay(30);
 
-  curErs = curErs + 90;
-  if (curErs > maxErs) curErs = 0;
+  if (Serial.available() > 0) {
+    char buf[len];
+    Serial.readBytes(buf, len);
+    memcpy(&curDataLoader, &buf, len);
 
-  curRev += 1000;
-  if (curRev >= maxRev) curRev = 0; 
+    if (!initializedRace) {
+      revLeds.begin(tft, 0, curDataLoader.maxRpm, 0x07E0, 0xF800);
+      fuelBar.begin(tft, 0, curDataLoader.maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
+      initializedRace = true;
+    }
 
-  curFuel += 50;
-  if (curFuel >= maxFuel) curFuel = 0; 
+    if (initializedRace) {
+      if (curDataLoader.rpm != prevDataLoader.rpm) rev();
+      if (curDataLoader.speed != prevDataLoader.speed) speed();
+      if (curDataLoader.gear != prevDataLoader.gear) gear();
+      if (curDataLoader.fuel != prevDataLoader.fuel) fuelBar.update(curDataLoader.fuel);
+    }
+    
+    memcpy(&prevDataLoader, &buf, len);
+  }
 
-  curSpeed += 50;
-  if (curSpeed > 400) curSpeed = 0;
-
-  shift();
-  ers();
-  rev();
-  speed();
-  fuel();
-  delay(1000);
+  delay(30);
 }

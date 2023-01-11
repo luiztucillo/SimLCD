@@ -10,6 +10,10 @@ int Led::getWidth()
   return Led::WIDTH * 2;
 }
 
+void Led::drawSimpleLed(int x, int y, uint16_t color) {
+  tft.fillCircle(x, y, Led::WIDTH, color);
+}
+
 void Led::drawLed(int x, int y, uint16_t shadow, uint16_t bright, uint16_t specular, uint16_t miniShadow)
 {
     tft.fillCircle(x, y, Led::WIDTH, specular);

@@ -20,25 +20,20 @@ void LedAutoColored::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxVal
 
 void LedAutoColored::drawLed(int x, int y, uint16_t curValue)
 {
-    float fraction = ((float) (100 * (curValue / 1000) / (maxValue - minValue))) / 100;
 
-    hsv c1 = Color::intToHsv(minColor);
-    hsv c2 = Color::intToHsv(maxColor);
+    float perc = (float) (100 * (curValue / 1000) / (maxValue - minValue));
 
-    hsv finalColor = {};
-    finalColor.h = c1.h * (1 - fraction) + c2.h * fraction;
-    finalColor.s = c1.s * (1 - fraction) + c2.s * fraction;
-    finalColor.v = c1.v * (1 - fraction) + c2.v * fraction;
+    uint16_t offColor = 0x7BEF; 
+    uint16_t color;
+    if (perc < 50) {
+        color = offColor;
+    } else if(perc < 70) {
+        color = 0x1FE0;
+    } else if(perc < 80) {
+        color = 0xFEE0;
+    } else {
+        color = 0xF800;
+    }
 
-    hsv shadow = {};
-    shadow.h = finalColor.h;
-    shadow.s = finalColor.s;
-    shadow.v = finalColor.v - 0.3 < 0 ? 0 : finalColor.v - 0.3;
-
-    hsv specular = {};
-    specular.h = finalColor.h;
-    specular.s = finalColor.s - 0.3 < 0 ? 0 : finalColor.s - 0.3;
-    specular.v = finalColor.v;
-
-    led.drawLed(x, y, Color::hsvToInt(shadow), Color::hsvToInt(finalColor), Color::hsvToInt(specular), Color::hsvToInt(shadow));
+    led.drawSimpleLed(x, y, color);
 }
