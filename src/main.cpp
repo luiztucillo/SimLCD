@@ -1,8 +1,17 @@
 #include <Arduino.h>
-#include <Adafruit_GFX.h>    // Core graphics library
 #include <MCUFRIEND_kbv.h>
+#include <TouchScreen.h>
 #include <LedAutoColored.h>
 #include <Bar.h>
+#include <Player.h>
+
+#define YP A1  // must be an analog pin, use "An" notation!
+#define XM A2  // must be an analog pin, use "An" notation!
+#define YM 7   // can be a digital pin
+#define XP 6   // can be a digital pin
+
+#define MINPRESSURE 10
+#define MAXPRESSURE 1000
 
 #define	BLACK   0x0000
 #define	BLUE    0x001F
@@ -29,7 +38,7 @@ struct DataLoader {
 };
 
 int len = sizeof(DataLoader);
-
+Player player;
 DataLoader prevDataLoader;
 DataLoader curDataLoader;
 
@@ -44,6 +53,16 @@ uint16_t maxErs = 300;
 
 uint16_t curFuel = 0;
 uint16_t maxFuel = 300;
+
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 100);
+
+void playerWidget() {
+  tft.setTextSize(2);
+  tft.fillRect(10, 150, 102, 43, BACKGROUND);
+  tft.setCursor(10, 150);
+  tft.setTextColor(WHITE);
+  tft.print(player.getSelectedPlayerName());
+}
 
 void gear() {
   int index = curDataLoader.gear;
@@ -129,8 +148,11 @@ char* milisecondsToRacetime(uint32_t milisecond) {
   return str;
 }
 
+unsigned long lastRead = 0;
+
 void loop(void) {
-  Serial.write("a");
+  Serial.write("p");
+  Serial.write(player.getSelectedPlayer());
 
   if (Serial.available() > 0) {
     char buf[len];
@@ -140,6 +162,7 @@ void loop(void) {
     if (!initializedRace) {
       revLeds.begin(tft, 0, curDataLoader.maxRpm, 0x07E0, 0xF800);
       fuelBar.begin(tft, 0, curDataLoader.maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, FUEL);
+      playerWidget();
       initializedRace = true;
     }
 
@@ -152,6 +175,15 @@ void loop(void) {
     
     memcpy(&prevDataLoader, &buf, len);
   }
+
+  // if (millis() - lastRead > 500) {
+  //   TSPoint p = ts.getPoint();
+  //   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+  //     player.nextPlayer();
+  //   }
+
+  //   lastRead = millis();
+  // }
 
   delay(30);
 }
