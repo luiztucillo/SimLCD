@@ -20,6 +20,9 @@ void Icon::drawErsIcon(MCUFRIEND_kbv tft, uint16_t offsetX, uint16_t offsetY)
 {
     uint16_t color = 0xFFFF;
 
+    offsetX = offsetX + 5;
+    offsetY = offsetY - 20;
+
     int line = 0;
     int column = 0;
     tft.drawPixel(offsetX + column + 1, offsetY + line, color);

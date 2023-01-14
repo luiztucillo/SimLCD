@@ -27,3 +27,15 @@ void Bar::update(uint16_t value) {
     Icon icon = Icon();
     icon.drawIcon(iconType, tft, positionX, positionY + height);
 }
+
+void Bar::update(uint16_t value, uint16_t color) {
+    float fraction = ((float) (100 * value / (maxValue - minValue))) / 100;
+    int current = (height - 2) * fraction;
+
+    tft.drawRect(positionX, positionY, width, height, 0xFFFF);
+    tft.fillRect(positionX + 1, positionY + 1, width - 2, height - 2, backgroundColor);
+    tft.fillRect(positionX + 1, positionY + height - current - 1, width - 2, current, color);
+
+    Icon icon = Icon();
+    icon.drawIcon(iconType, tft, positionX, positionY + height);
+}

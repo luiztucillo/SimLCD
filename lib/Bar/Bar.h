@@ -22,6 +22,7 @@ class Bar {
         void begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_t width, uint16_t height, 
                 uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, IconType iconType);
         void update(uint16_t value);
+        void update(uint16_t value, uint16_t color);
 };
 
 #endif

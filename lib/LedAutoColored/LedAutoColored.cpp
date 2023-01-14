@@ -26,9 +26,9 @@ void LedAutoColored::drawLed(int x, int y, uint16_t curValue)
     uint16_t color;
     if (perc < 70) {
         color = offColor;
-    } else if(perc <80) {
+    } else if(perc < 80) {
         color = 0x1FE0;
-    } else if(perc < 95) {
+    } else if(perc < 85) {
         color = 0xFEE0;
     } else {
         color = 0xF800;

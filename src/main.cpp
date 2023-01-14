@@ -1,33 +1,18 @@
 #include <Arduino.h>
 #include <MCUFRIEND_kbv.h>
-#include <TouchScreen.h>
 #include <LedAutoColored.h>
 #include <Bar.h>
 #include <Player.h>
+#include <Gear.h>
+#include <Revs.h>
+#include <Speed.h>
+#include <Fuel.h>
+#include <Game.h>
+#include <LapTime.h>
+#include <Ers.h>
 
-#define YP A1  // must be an analog pin, use "An" notation!
-#define XM A2  // must be an analog pin, use "An" notation!
-#define YM 7   // can be a digital pin
-#define XP 6   // can be a digital pin
-
-#define MINPRESSURE 10
-#define MAXPRESSURE 1000
-
-#define	BLACK   0x0000
-#define	BLUE    0x001F
-#define	RED     0xF800
-#define	GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0
-#define WHITE   0xFFFF
-#define GRAY    0x7BEF
-#define BACKGROUND 0x0101
-
-#define SCREEN_W 320
-#define SCREEN_H 240
-
-struct DataLoader {
+struct DataLoader
+{
   uint16_t speed = 0;
   uint16_t rpm = 0;
   uint16_t gear = 0;
@@ -35,79 +20,41 @@ struct DataLoader {
   uint16_t status = 0;
   uint16_t fuel = 0;
   uint16_t maxFuel = 0;
+  uint8_t player = 0;
+  uint32_t curTime = 0;
+  uint32_t lastTime = 0;
+  uint32_t bestTime = 0;
+  uint8_t hasErs = 0;
+  uint8_t ersPowerLevel = 0;
+  uint8_t ersChargePercentage = 0;
+  uint8_t kersInput = 0;
 };
 
 int len = sizeof(DataLoader);
-Player player;
-DataLoader prevDataLoader;
-DataLoader curDataLoader;
 
 bool initializedRace = false;
+
+Player player;
+
+DataLoader curDataLoader;
 MCUFRIEND_kbv tft;
-LedAutoColored revLeds = LedAutoColored();
-Bar fuelBar = Bar();
+
+// WIDGETS
 Bar ersBar = Bar();
+Gear gear;
+Revs revs;
+Speed speed;
+Fuel fuel;
+Ers ers;
+LapTime curTime;
+LapTime lastTime;
+LapTime bestTime;
 
 uint16_t curErs = 0;
 uint16_t maxErs = 300;
 
-uint16_t curFuel = 0;
-uint16_t maxFuel = 300;
-
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 100);
-
-void playerWidget() {
-  tft.setTextSize(2);
-  tft.fillRect(10, 150, 102, 43, BACKGROUND);
-  tft.setCursor(10, 150);
-  tft.setTextColor(WHITE);
-  tft.print(player.getSelectedPlayerName());
-}
-
-void gear() {
-  int index = curDataLoader.gear;
-  char shifts[] = {'R', 'N', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-  
-  tft.setTextSize(20);
-
-  tft.fillRect(150, 50, 100, 140, BACKGROUND);
-
-  tft.setCursor(150, 50);
-  tft.setTextColor(WHITE);
-  tft.print(shifts[index]);
-}
-
-void speed() {
-  tft.setTextSize(6);
-
-  tft.fillRect(10, 90, 102, 43, RED);
-
-  tft.setCursor(10, 90);
-  tft.setTextColor(WHITE);
-  tft.print(curDataLoader.speed);
-}
-
-void rev() {
-  tft.setTextSize(3);
-
-  tft.fillRect(10, 50, 100, 22, BACKGROUND);
-  tft.setCursor(10, 50);
-  tft.setTextColor(WHITE);
-  tft.print(curDataLoader.rpm);
-
-  int offsetX = 22;
-  int offsetY = 22; 
-  for (int i = 0; i < 8; i ++) {
-    revLeds.drawLed(offsetX, offsetY, curDataLoader.rpm);
-    offsetX += revLeds.getWidth() + 13;
-  }
-}
-
-void ers() {
-  ersBar.update(curErs);
-}
-
-void setup(void) {
+void setup(void)
+{
   Serial.begin(115200);
 
   uint16_t ID = tft.readID();
@@ -115,75 +62,58 @@ void setup(void) {
   tft.setRotation(1);
   tft.fillScreen(BACKGROUND);
 
-  // revLeds.begin(tft, 0, 10000, 0x07E0, 0xF800);
-  // fuelBar.begin(tft, 0, 10000, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, Icon(FUEL));
-  // ersBar.begin(tft, 0, 10000, 20, SCREEN_H - 50, SCREEN_W - 20 - 10, 50, BACKGROUND, 0xE01F, Icon(ERS));
+  gear.begin(tft);
+  revs.begin(tft, 1000);
+  speed.begin(tft);
+  fuel.begin(tft, 0);
+  player.begin(tft);
+  lastTime.begin(tft, 2, 10, 176, YELLOW);
+  bestTime.begin(tft, 2, 10, 196, MAGENTA);
+  curTime.begin(tft, 3, 10, 216, WHITE);
 }
 
-char* milisecondsToRacetime(uint32_t milisecond) {
-	uint16_t seconds = milisecond / 1000 % 60;
-	uint16_t minutes = milisecond / 60000;
-	uint16_t rest = milisecond % 1000;
+void loop(void)
+{
+  Serial.write(len);
+  delay(10);
 
-	char secondsStr[2];
-  sprintf(secondsStr, "%02d", seconds);
-
-	char minutesStr[2];
-  sprintf(minutesStr, "%02d", minutes);
-
-	char restStr[3];
-  sprintf(restStr, "%03d", rest);
-
-  char* str = new char[9]();
-  str[0] = minutesStr[0];
-  str[1] = minutesStr[1];
-  str[2] = ':';
-  str[3] = secondsStr[0];
-  str[4] = secondsStr[1];
-  str[5] = ':';
-  str[6] = restStr[0];
-  str[7] = restStr[1];
-  str[8] = restStr[3];
-
-  return str;
-}
-
-unsigned long lastRead = 0;
-
-void loop(void) {
-  Serial.write("p");
-  Serial.write(player.getSelectedPlayer());
-
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0)
+  {
     char buf[len];
     Serial.readBytes(buf, len);
     memcpy(&curDataLoader, &buf, len);
+    delay(30);
 
-    if (!initializedRace) {
-      revLeds.begin(tft, 0, curDataLoader.maxRpm, 0x07E0, 0xF800);
-      fuelBar.begin(tft, 0, curDataLoader.maxFuel, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, 0xDC40, FUEL);
-      playerWidget();
+    if (!initializedRace && curDataLoader.status > 0)
+    {
+      revs.begin(tft, curDataLoader.maxRpm);
+      fuel.begin(tft, curDataLoader.maxFuel);
+
+      if (curDataLoader.hasErs)
+      {
+        ers.begin(tft);
+      }
+
       initializedRace = true;
     }
 
-    if (initializedRace) {
-      if (curDataLoader.rpm != prevDataLoader.rpm) rev();
-      if (curDataLoader.speed != prevDataLoader.speed) speed();
-      if (curDataLoader.gear != prevDataLoader.gear) gear();
-      if (curDataLoader.fuel != prevDataLoader.fuel) fuelBar.update(curDataLoader.fuel);
+    if (initializedRace)
+    {
+      gear.update(curDataLoader.gear);
+      revs.update(curDataLoader.rpm);
+      speed.update(curDataLoader.speed);
+      fuel.update(curDataLoader.fuel);
+      player.update(curDataLoader.player);
+      curTime.update(curDataLoader.curTime);
+      lastTime.update(curDataLoader.lastTime);
+      bestTime.update(curDataLoader.bestTime);
+      ers.update(curDataLoader.ersChargePercentage, curDataLoader.ersPowerLevel, curDataLoader.kersInput > 0);
+
+      if (curDataLoader.status == 0) {
+        initializedRace = false;
+      }
     }
-    
-    memcpy(&prevDataLoader, &buf, len);
   }
-
-  // if (millis() - lastRead > 500) {
-  //   TSPoint p = ts.getPoint();
-  //   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-  //     player.nextPlayer();
-  //   }
-
-  //   lastRead = millis();
-  // }
 
   delay(30);
 }
