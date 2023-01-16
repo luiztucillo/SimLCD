@@ -16,7 +16,7 @@ void LapTime::format(char* buffer)
 {
     uint8_t seconds = curTime / 1000 % 60;
 	uint8_t minutes = curTime / 60000;
-	uint8_t rest = curTime % 1000;
+	uint16_t rest = curTime % 1000;
 
     char s[] = "00";
 	sprintf(s, "%02d", seconds);
