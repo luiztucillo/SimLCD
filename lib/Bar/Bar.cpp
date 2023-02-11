@@ -2,11 +2,9 @@
 #include <Color.h>
 #include <Icon.h>
 
-void Bar::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_t width, 
+void Bar::begin(MCUFRIEND_kbv tft, uint16_t width, 
     uint16_t height, uint16_t positionX, uint16_t positionY, uint16_t backgroundColor, uint16_t foregroundColor, IconType iconType) {
     this->tft = tft;
-    this->minValue = minValue;
-    this->maxValue = maxValue;
     this->width = width;
     this->height = height;
     this->positionX = positionX;
@@ -16,26 +14,27 @@ void Bar::begin(MCUFRIEND_kbv tft, uint16_t minValue, uint16_t maxValue, uint16_
     this->iconType = iconType;
 }
 
-void Bar::update(uint16_t value) {
-    float fraction = ((float) (100 * value / (maxValue - minValue))) / 100;
-    int current = (height - 2) * fraction;
+void Bar::draw(uint8_t value, uint16_t color) {
+    int finalPositionX = positionX + 1;
+    int finalPositionY = positionY + 1;
+    int finalWidth = width - 2;
+    int finalHeight = height - 2;
 
-    tft.drawRect(positionX, positionY, width, height, 0xFFFF);
-    tft.fillRect(positionX + 1, positionY + 1, width - 2, height - 2, backgroundColor);
-    tft.fillRect(positionX + 1, positionY + height - current - 1, width - 2, current, foregroundColor);
+    int filledHeight = value * finalHeight / 100;
+    int unfilledHeight = finalHeight - filledHeight;
+
+    tft.fillRect(positionX, positionY, width, height, WHITE);
+    tft.fillRect(finalPositionX, finalPositionY, finalWidth, unfilledHeight, BACKGROUND);
+    tft.fillRect(finalPositionX, finalPositionY + finalHeight - filledHeight, finalWidth, filledHeight, color);
 
     Icon icon = Icon();
     icon.drawIcon(iconType, tft, positionX, positionY + height);
 }
 
-void Bar::update(uint16_t value, uint16_t color) {
-    float fraction = ((float) (100 * value / (maxValue - minValue))) / 100;
-    int current = (height - 2) * fraction;
+void Bar::update(uint8_t value) {
+    draw(value, foregroundColor);
+}
 
-    tft.drawRect(positionX, positionY, width, height, 0xFFFF);
-    tft.fillRect(positionX + 1, positionY + 1, width - 2, height - 2, backgroundColor);
-    tft.fillRect(positionX + 1, positionY + height - current - 1, width - 2, current, color);
-
-    Icon icon = Icon();
-    icon.drawIcon(iconType, tft, positionX, positionY + height);
+void Bar::update(uint8_t value, uint16_t color) {
+    draw(value, color);
 }

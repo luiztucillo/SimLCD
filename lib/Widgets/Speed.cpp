@@ -2,11 +2,11 @@
 
 void Speed::draw()
 {
-    tft.setTextSize(6);
+    tft.setTextSize(7);
 
-    tft.fillRect(10, 90, 102, 43, RED);
+    tft.fillRect(10, 50, 120, 49, RED);
 
-    tft.setCursor(10, 90);
+    tft.setCursor(10, 50);
     tft.setTextColor(WHITE);
     tft.print(curSpeed);
 }

@@ -1,20 +1,19 @@
 
-#ifndef REVS_H
-#define REVS_H
+#ifndef CURLAP_H
+#define CURLAP_H
 
 #include <stdint.h>
 #include <MCUFRIEND_kbv.h>
-#include <LedAutoColored.h>
 #include <Game.h>
 
-class Revs {
+class CurLap {
 private:
     MCUFRIEND_kbv tft;
-    uint8_t curRpmPercentage = 0;
+    uint16_t curLap = 0;
     void draw();
 public:
     void begin(MCUFRIEND_kbv tft);
-    void update(uint8_t rpmPercentage);
+    void update(uint16_t lap);
 };
 
 #endif

@@ -16,6 +16,7 @@ private:
 public:
     void begin(MCUFRIEND_kbv tft);
     void update(bool exists, bool available, bool enabled);
+    void clear();
 };
 
 #endif

@@ -30,6 +30,10 @@ void Drs::draw()
     tft.print("DRS");
 }
 
+void Drs::clear() {
+    tft.fillRect(SCREEN_W - 130, SCREEN_H - 40, 50, 40, BACKGROUND);
+}
+
 void Drs::begin(MCUFRIEND_kbv tft)
 {
     this->tft = tft;
@@ -37,7 +41,22 @@ void Drs::begin(MCUFRIEND_kbv tft)
 
 void Drs::update(bool exists, bool available, bool enabled)
 {
-    if (exists != this->exists || this->available != available || this->enabled != enabled)
+    if (exists != this->exists) {
+        this->exists = exists;
+
+        if (!exists) {
+            clear();
+            return;
+        } else {
+            draw();
+        }
+    }
+
+    if (!exists) {
+        return;
+    }
+
+    if (this->available != available || this->enabled != enabled)
     {
         this->exists = exists;
         this->available = available;

@@ -2,30 +2,25 @@
 
 void Revs::draw()
 {
-    tft.setTextSize(3);
-    tft.fillRect(10, 50, 100, 22, BACKGROUND);
-    tft.setCursor(10, 50);
-    tft.setTextColor(WHITE);
-    tft.print(curRpm);
+    uint16_t maxWidth = SCREEN_W - 2;
 
-    int offsetX = 22;
-    int offsetY = 22; 
-    for (int i = 0; i < 8; i ++) {
-        revLeds.drawLed(offsetX, offsetY, curRpm);
-        offsetX += revLeds.getWidth() + 13;
-    }
+    uint16_t filled = maxWidth * curRpmPercentage / 100;
+    uint16_t unfilled = maxWidth - filled;
+
+    tft.fillRect(1 + filled, 1, unfilled, 28, BACKGROUND);
+    tft.fillRect(1, 1, filled, 28, YELLOW);
 }
 
-void Revs::begin(MCUFRIEND_kbv tft, uint16_t maxRpm) {
-    revLeds.begin(tft, 0, maxRpm, 0x07E0, RED);
+void Revs::begin(MCUFRIEND_kbv tft) {
+    tft.drawRect(0, 0, SCREEN_W, 30, 0xFFFF);
     this->tft = tft;
     draw();
 }
 
-void Revs::update(uint16_t rpm)
+void Revs::update(uint8_t rpmPercentage)
 {
-    if (rpm != curRpm) {
-        curRpm = rpm;
+    if (rpmPercentage != curRpmPercentage) {
+        curRpmPercentage = rpmPercentage;
         draw();
     }
 }

@@ -20,19 +20,17 @@
 
 struct DataLoader
 {
-  uint16_t speed = 0;
-  uint16_t rpm = 0;
-  uint16_t gear = 0;
-  uint16_t maxRpm = 0;
-  uint8_t status = 0;
-  uint16_t fuel = 0;
-  uint16_t maxFuel = 0;
-  uint8_t player = 0;
   uint32_t curTime = 0;
   uint32_t lastTime = 0;
   uint32_t bestTime = 0;
+  uint16_t speed = 0;
+  uint8_t gear = 0;
+  uint8_t fuelPercentage = 0;
+  uint8_t rpmPercentage = 0;
+  uint8_t status = 0;
   uint8_t ersPowerLevel = 0;
   uint8_t ersChargePercentage = 0;
+  uint16_t curLap = 0;
   uint8_t booleans = 0;
   // bool hasErs = false;
   // bool hasDrs = false;

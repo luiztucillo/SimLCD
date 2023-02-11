@@ -3,13 +3,33 @@
 void Ers::begin(MCUFRIEND_kbv tft)
 {
     this->tft = tft;
-    ersBar.begin(tft, 0, 100, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, MAGENTA, ERS);
+    ersBar.begin(tft, 20, SCREEN_H - 50, SCREEN_W - 54, 50, BACKGROUND, MAGENTA, ERS);
     curBatteryLevelPercentage = 100;
-    draw();
+    clear();
 }
 
-void Ers::update(uint8_t batteryLevelPercentage, uint8_t level, bool kers)
+void Ers::clear() {
+    tft.fillRect(SCREEN_W - 54, 50, SCREEN_W - 54, SCREEN_H - 50, BACKGROUND);
+    tft.fillRect(SCREEN_W - 73, SCREEN_H - 5 - 7 * 6, 15, 50, BACKGROUND);
+}
+
+void Ers::update(bool exists, uint8_t batteryLevelPercentage, uint8_t level, bool kers)
 {
+    if (exists != this->exists) {
+        this->exists = exists;
+
+        if (!exists) {
+            clear();
+            return;
+        } else {
+            draw();
+        }
+    }
+
+    if (!exists) {
+        return;
+    }
+
     if (curBatteryLevelPercentage != batteryLevelPercentage || level != curLevel || kers != pressingKers) {
         curBatteryLevelPercentage = batteryLevelPercentage;
         curLevel = level;
